@@ -1,58 +1,62 @@
 const video = document.getElementById('video');
 const statusText = document.getElementById('status');
 
-// 1. Cargar SOLO los modelos necesarios (Corregido: quitamos faceRecognitionNet)
+// 1. Cargar Modelos
 Promise.all([
     faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
     faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
     faceapi.nets.ageGenderNet.loadFromUri('/models')
 ]).then(startVideo).catch(err => {
     console.error(err);
-    statusText.innerText = "Error cargando modelos. Revisa la consola (F12).";
+    statusText.innerText = "Error cargando modelos. Revisa la consola.";
 });
 
-// 2. Iniciar la cámara
+// 2. Iniciar Cámara (Compatible con móviles)
 function startVideo() {
     statusText.innerText = "Iniciando cámara...";
-    navigator.mediaDevices.getUserMedia({ video: {} })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } }) // facingMode asegura cámara frontal en cel
         .then(stream => {
             video.srcObject = stream;
         })
-        .catch(err => console.error("Error al acceder a la cámara:", err));
+        .catch(err => {
+            console.error("Error cámara:", err);
+            statusText.innerText = "Error: No se detecta cámara. Permite el acceso.";
+        });
 }
 
-// 3. Cuando el video empiece a reproducirse, comenzamos la detección
+// 3. Detección
 video.addEventListener('play', () => {
     statusText.innerText = "Sistema Operativo. Detectando...";
     
-    // Crear el lienzo (canvas) sobre el video
+    // Crear canvas
     const canvas = faceapi.createCanvasFromMedia(video);
     document.querySelector('.video-container').append(canvas);
     
-    const displaySize = { width: video.width, height: video.height };
+    // Configuración inicial de tamaño
+    const displaySize = { width: video.clientWidth, height: video.clientHeight };
     faceapi.matchDimensions(canvas, displaySize);
 
-    // Bucle infinito de detección (cada 100ms)
     setInterval(async () => {
-        // Detectar caras y estimar edad/género
+        // Detectar caras
         const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
             .withFaceLandmarks()
             .withAgeAndGender();
 
-        // Ajustar el tamaño de las detecciones al video
-        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        // IMPORTANTE: Recalcular tamaño actual (por si giras el celular)
+        const currentSize = { width: video.clientWidth, height: video.clientHeight };
+        faceapi.matchDimensions(canvas, currentSize);
         
-        // Limpiar el canvas antes de dibujar lo nuevo
+        const resizedDetections = faceapi.resizeResults(detections, currentSize);
+        
+        // Limpiar canvas
         canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 
-        // Lógica personalizada para dibujar
         resizedDetections.forEach(detection => {
             const box = detection.detection.box;
             
-   
-            // Invertimos la posición X para que coincida con el video espejo
+            // --- CÁLCULO ESPEJO (Mantiene el cuadro en su lugar al invertir video) ---
             const mirroredBox = {
-                x: displaySize.width - box.x - box.width, 
+                x: currentSize.width - box.x - box.width, 
                 y: box.y,
                 width: box.width,
                 height: box.height
@@ -61,21 +65,22 @@ video.addEventListener('play', () => {
             const age = detection.age;
             const gender = detection.gender;
             
-            // Lógica de redondeo para rangos de 5 años
+            // Rango de edad (5 años)
             const ageGroup = 5;
             const lowerAge = Math.floor(age / ageGroup) * ageGroup;
             const upperAge = lowerAge + ageGroup;
             
-            const text = `${Math.round(age)} años (Rango: ${lowerAge}-${upperAge})`;
-            const genderText = gender === 'male' ? 'Hombre' : 'Mujer';
+            const text = `${Math.round(age)} años (${lowerAge}-${upperAge})`;
+            const genderText = gender === 'male' ? 'H' : 'M'; // Abreviado para que quepa mejor en celular
             
-            // Dibujar la caja usando mirroredBox
+            // Dibujar caja
             const drawBox = new faceapi.draw.DrawBox(mirroredBox, {
-                label: `${genderText} - ${text}`,
+                label: `${genderText}: ${text}`,
                 boxColor: '#00ffcc',
                 drawLabelOptions: {
                     fontColor: '#000000',
-                    backgroundColor: '#00ffcc'
+                    backgroundColor: '#00ffcc',
+                    fontSize: 12
                 }
             });
             drawBox.draw(canvas);
