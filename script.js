@@ -11,16 +11,16 @@ Promise.all([
     statusText.innerText = "Error cargando modelos. Revisa la consola.";
 });
 
-// 2. Iniciar Cámara (Compatible con móviles)
+// 2. Iniciar Cámara
 function startVideo() {
     statusText.innerText = "Iniciando cámara...";
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } }) // facingMode asegura cámara frontal en cel
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
         .then(stream => {
             video.srcObject = stream;
         })
         .catch(err => {
             console.error("Error cámara:", err);
-            statusText.innerText = "Error: No se detecta cámara. Permite el acceso.";
+            statusText.innerText = "Error: No se detecta cámara.";
         });
 }
 
@@ -28,33 +28,29 @@ function startVideo() {
 video.addEventListener('play', () => {
     statusText.innerText = "Sistema Operativo. Detectando...";
     
-    // Crear canvas
     const canvas = faceapi.createCanvasFromMedia(video);
     document.querySelector('.video-container').append(canvas);
     
-    // Configuración inicial de tamaño
     const displaySize = { width: video.clientWidth, height: video.clientHeight };
     faceapi.matchDimensions(canvas, displaySize);
 
+  
     setInterval(async () => {
         // Detectar caras
         const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
             .withFaceLandmarks()
             .withAgeAndGender();
 
-        // IMPORTANTE: Recalcular tamaño actual (por si giras el celular)
         const currentSize = { width: video.clientWidth, height: video.clientHeight };
         faceapi.matchDimensions(canvas, currentSize);
         
         const resizedDetections = faceapi.resizeResults(detections, currentSize);
         
-        // Limpiar canvas
         canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 
         resizedDetections.forEach(detection => {
             const box = detection.detection.box;
             
-            // --- CÁLCULO ESPEJO (Mantiene el cuadro en su lugar al invertir video) ---
             const mirroredBox = {
                 x: currentSize.width - box.x - box.width, 
                 y: box.y,
@@ -65,15 +61,13 @@ video.addEventListener('play', () => {
             const age = detection.age;
             const gender = detection.gender;
             
-            // Rango de edad (5 años)
             const ageGroup = 5;
             const lowerAge = Math.floor(age / ageGroup) * ageGroup;
             const upperAge = lowerAge + ageGroup;
             
             const text = `${Math.round(age)} años (${lowerAge}-${upperAge})`;
-            const genderText = gender === 'male' ? 'H' : 'M'; // Abreviado para que quepa mejor en celular
+            const genderText = gender === 'male' ? 'H' : 'M';
             
-            // Dibujar caja
             const drawBox = new faceapi.draw.DrawBox(mirroredBox, {
                 label: `${genderText}: ${text}`,
                 boxColor: '#00ffcc',
@@ -85,5 +79,5 @@ video.addEventListener('play', () => {
             });
             drawBox.draw(canvas);
         });
-    }, 100);
+    }, 500); // 
 });
