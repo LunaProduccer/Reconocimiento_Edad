@@ -49,7 +49,7 @@ video.addEventListener('play', () => {
         resizedDetections.forEach(detection => {
             const box = detection.detection.box;
             
-            // --- TRUCO MATEMÁTICO: INVERTIR COORDENADAS ---
+   
             // Invertimos la posición X para que coincida con el video espejo
             const mirroredBox = {
                 x: displaySize.width - box.x - box.width, 

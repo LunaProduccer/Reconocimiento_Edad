@@ -34,18 +34,18 @@ h1 {
     justify-content: center;
 }
 
-/* Solo volteamos el video (Espejo) */
+
 #video {
     transform: scaleX(-1);
 }
 
 /* REGLA DE SEGURIDAD: */
-/* Forzamos al canvas (donde está el texto) a quedarse NORMAL */
+
 canvas {
     position: absolute;
     top: 0;
     left: 0;
-    transform: scaleX(1) !important; /* El !important asegura que nadie lo cambie */
+    transform: scaleX(1) !important; /* 
 }
 
 #status {
@@ -61,4 +61,22 @@ canvas {
 
 @keyframes blinker {
     50% { opacity: 0; }
+}
+
+
+.footer-info {
+    margin-top: 30px;
+    border-top: 1px solid #00ffcc;
+    padding-top: 15px;
+}
+
+.footer-info h2 {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #fff; /* Blanco para destacar */
+}
+
+.footer-info p {
+    font-size: 14px;
+    color: #00ffcc; /* Verde neon */
 }
