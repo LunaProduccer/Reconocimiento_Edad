@@ -6,11 +6,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #0a0a0a; /* Fondo negro */
+    background-color: #0a0a0a;
     font-family: 'Courier New', Courier, monospace;
-    color: #00ffcc; /* Verde Neon */
-    /* Habilitamos el scroll vertical para ver el footer en móviles */
-    overflow-y: auto; 
+    color: #00ffcc;
+    overflow-y: auto; /* Permite bajar para ver el footer */
     flex-direction: column;
 }
 
@@ -19,52 +18,54 @@ body {
     position: relative;
     padding: 20px;
     width: 100%;
-    box-sizing: border-box; /* Para que el padding no rompa el ancho */
+    box-sizing: border-box;
 }
 
 h1 {
     margin-bottom: 20px;
     text-shadow: 0 0 10px #00ffcc;
     letter-spacing: 2px;
-    font-size: 1.5rem; /* Tamaño adaptable */
+    font-size: 1.5rem;
 }
 
-/* Contenedor del video responsivo */
+
 .video-container {
     position: relative;
     border: 2px solid #00ffcc;
     box-shadow: 0 0 20px #00ffcc44;
-    border-radius: 8px;
+    border-radius: 20px; /* Bordes redondeados modernos */
     overflow: hidden;
     display: flex;
     justify-content: center;
-    margin: 0 auto; /* Centrado */
+    margin: 0 auto;
     
-    /* Adaptabilidad Móvil */
+    /* TRUCO VERTICAL */
     width: 100%;
-    max-width: 720px; /* En PC no pasará de este tamaño */
-    height: auto;
-    aspect-ratio: 4/3; /* Mantiene proporción rectangular */
+    max-width: 400px; /* Ancho máximo de un celular */
+    aspect-ratio: 9/16; /* Proporción vertical exacta */
     background-color: #000;
 }
 
 #video {
     width: 100%;
     height: 100%;
+    /* COVER: Hace zoom al centro para llenar el vertical sin estirarse */
     object-fit: cover; 
-    transform: scaleX(-1); /* Efecto Espejo */
-    filter: brightness(1.2) saturate(1.3) contrast(1.05);
+    transform: scaleX(-1); /* Espejo */
+    
+    
+    filter: brightness(1.2) saturate(1.3) contrast(1.1);
 }
 
-
-/* El lienzo de dibujo debe coincidir exactamente */
+/* El lienzo se adapta al video */
 canvas {
     position: absolute;
     top: 0;
     left: 0;
     width: 100% !important;
     height: 100% !important;
-    transform: scaleX(1) !important; /* Texto NO invertido */
+    object-fit: cover;
+    transform: scaleX(1) !important;
 }
 
 #status {
@@ -73,12 +74,11 @@ canvas {
     opacity: 0.8;
 }
 
-/* Pie de página */
 .footer-info {
     margin-top: 30px;
     border-top: 1px solid #00ffcc;
     padding-top: 15px;
-    padding-bottom: 40px; /* Espacio extra abajo para móviles */
+    padding-bottom: 50px;
 }
 
 .footer-info h2 {
