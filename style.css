@@ -1,0 +1,64 @@
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0a0a0a;
+    font-family: 'Courier New', Courier, monospace;
+    color: #00ffcc;
+    overflow: hidden;
+}
+
+.container {
+    text-align: center;
+    position: relative;
+}
+
+h1 {
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #00ffcc;
+    letter-spacing: 2px;
+}
+
+/* El contenedor NO debe tener transform */
+.video-container {
+    position: relative;
+    border: 2px solid #00ffcc;
+    box-shadow: 0 0 20px #00ffcc44;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+/* Solo volteamos el video (Espejo) */
+#video {
+    transform: scaleX(-1);
+}
+
+/* REGLA DE SEGURIDAD: */
+/* Forzamos al canvas (donde está el texto) a quedarse NORMAL */
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: scaleX(1) !important; /* El !important asegura que nadie lo cambie */
+}
+
+#status {
+    margin-top: 10px;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.blink {
+    animation: blinker 1.5s linear infinite;
+    color: #ff0055;
+}
+
+@keyframes blinker {
+    50% { opacity: 0; }
+}
