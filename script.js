@@ -56,7 +56,7 @@ video.addEventListener('play', () => {
     // Intervalo de 500ms (Fluido y sin lag)
     setInterval(async () => {
         // Detectar caras
-        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+       const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.3 }))
             .withFaceLandmarks()
             .withAgeAndGender();
 
